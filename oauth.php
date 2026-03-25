@@ -1,6 +1,5 @@
 <?php
 //  Gitpullinator OAuth Handler
-// Replace the values below with your actual GitHub OAuth app credentials
 
 define('CLIENT_ID',     'Ov23lim3qo01CG6Lzsb5');
 define('CLIENT_SECRET', 'YOUR_CLIENT_SECRET_HERE');
@@ -8,7 +7,7 @@ define('REDIRECT_BACK', 'https://jenstech.qzz.io/gitpullinator/');
 
 $action = $_GET['action'] ?? '';
 
-//  Step 1: Start — browser navigates here, we redirect to GitHub 
+// browser navigates here, we redirect to GitHub 
 if ($action === 'start') {
     $state = bin2hex(random_bytes(16));
     setcookie('oauth_state', $state, time() + 300, '/', '', true, true);
@@ -22,7 +21,7 @@ if ($action === 'start') {
     exit;
 }
 
-//  Step 2: Callback — GitHub sends user back here with ?code= 
+// Callback. GitHub sends user back here with ?code= 
 $code  = $_GET['code']  ?? '';
 $state = $_GET['state'] ?? '';
 
@@ -37,7 +36,7 @@ if (!$savedState || !hash_equals($savedState, $state)) {
 }
 setcookie('oauth_state', '', time() - 3600, '/'); // clear state cookie
 
-//  Step 3: Exchange code for token via curl 
+// Exchange code for token via curl 
 $ch = curl_init('https://github.com/login/oauth/access_token');
 curl_setopt_array($ch, [
     CURLOPT_RETURNTRANSFER => true,
@@ -73,8 +72,7 @@ if (!$token) {
     redirectWithError('No token in response');
 }
 
-//  Step 4: Send token back to React app via URL fragment 
-// Fragment (#) is never sent to the server, so the token stays client-side only
+// Send token back to React app via URL fragment 
 header('Location: ' . REDIRECT_BACK . '#gh_token=' . urlencode($token));
 exit;
 
